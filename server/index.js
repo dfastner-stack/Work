@@ -1,10 +1,12 @@
-import 'dotenv/config';
 import express from 'express';
 import { readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { config as dotenvConfig } from 'dotenv';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenvConfig({ path: join(__dirname, '..', '.env') });
+
 const app = express();
 app.use(express.json());
 
