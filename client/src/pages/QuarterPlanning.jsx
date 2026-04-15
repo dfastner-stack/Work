@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchTasks, fetchConfig } from '../api/asana.js';
-import { calcQuarterPlan, getPoints, groupByCampaign } from '../utils/aggregate.js';
+import { calcQuarterPlan, getPoints, groupByCampaign, getPersonCapacity } from '../utils/aggregate.js';
 import { getCurrentQuarter, weeksInQuarter, PEOPLE } from '../config.js';
 import CapacityBar from '../components/CapacityBar.jsx';
 import StatCard from '../components/StatCard.jsx';
@@ -87,7 +87,8 @@ export default function QuarterPlanning() {
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">Per-Person Quarter Capacity</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {plan.people.map(pw => {
-            const cap = (config?.weeklyCapacity?.[pw.gid] ?? 40) * totalWks;
+            const personCap = getPersonCapacity(pw.gid, config);
+            const cap = personCap.productionHours * totalWks;
             const res = cap * (reservePercent / 100);
             const net = cap - res;
             const over = pw.backlog > net;

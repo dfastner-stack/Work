@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { fetchTasks, fetchConfig } from '../api/asana.js';
-import { groupByPerson, groupBySection, getPoints, isOverdue, isDueSoon } from '../utils/aggregate.js';
+import { groupByPerson, groupBySection, getPoints, isOverdue, isDueSoon, getPersonCapacity } from '../utils/aggregate.js';
 import { PERSON_BY_SLUG, SECTIONS_ORDER, weeksRemaining } from '../config.js';
 import CapacityBar from '../components/CapacityBar.jsx';
 import StatCard from '../components/StatCard.jsx';
@@ -29,7 +29,9 @@ export default function PersonDashboard() {
 
   const today = new Date();
   const wksLeft = weeksRemaining(today);
-  const weeklyCapacity = config?.weeklyCapacity?.[person.gid] ?? 40;
+  const cap = getPersonCapacity(person.gid, config);
+  const productionHours = cap.productionHours;
+  const reservePct = config?.reservePercent ?? 20;
 
   const byPerson = groupByPerson(tasks);
   const myTasks = byPerson[person.gid]?.tasks ?? [];
@@ -38,7 +40,7 @@ export default function PersonDashboard() {
 
   const thiswkPts = myTasks.filter(t => isDueSoon(t, 7, today)).reduce((s, t) => s + (getPoints(t) ?? 0), 0);
   const overdueTasks = myTasks.filter(t => isOverdue(t, today));
-  const wksToClear = weeklyCapacity > 0 ? totalPoints / (weeklyCapacity * (1 - (config?.reservePercent ?? 20) / 100)) : 0;
+  const wksToClear = productionHours > 0 ? totalPoints / (productionHours * (1 - reservePct / 100)) : 0;
 
   const bySection = groupBySection(myTasks);
   const sections = SECTIONS_ORDER.filter(s => bySection[s]);
@@ -49,20 +51,22 @@ export default function PersonDashboard() {
     <Shell person={person}>
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard label="Total Backlog" value={`${totalPoints.toFixed(0)} pts`} color="green" />
-        <StatCard label="This Week Due" value={`${thiswkPts.toFixed(0)} pts`} sub="next 7 days" color={thiswkPts > weeklyCapacity ? 'red' : 'green'} />
+        <StatCard label="This Week Due" value={`${thiswkPts.toFixed(0)} pts`} sub="next 7 days" color={thiswkPts > productionHours ? 'red' : 'green'} />
         <StatCard label="Wks to Clear" value={wksToClear.toFixed(1)} sub={`of ${wksLeft.toFixed(1)} remaining`} color={wksToClear > wksLeft ? 'red' : 'green'} />
         <StatCard label="Missing Pts" value={missingPoints} sub="no estimate" color={missingPoints > 0 ? 'yellow' : 'gray'} />
       </div>
 
       <div className="mb-6 rounded-xl border border-[#E5E0D8] bg-white p-4">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-sm font-semibold text-gray-700">Weekly Capacity</p>
-          <p className="text-xs text-gray-400">{weeklyCapacity} pts/wk · 20% reserved</p>
+          <p className="text-sm font-semibold text-gray-700">Weekly Production Capacity</p>
+          <p className="text-xs text-gray-400">
+            {cap.weeklyHours}h − {cap.meetingHours}h mtgs − {cap.adminHours}h admin = <strong>{productionHours}h/wk</strong> · {reservePct}% reserved
+          </p>
         </div>
         <CapacityBar
-          capacity={weeklyCapacity}
+          capacity={productionHours}
           segments={[
-            { label: 'Due this week', value: thiswkPts, color: thiswkPts > weeklyCapacity * 0.8 ? 'bg-red-400' : 'bg-[#2D6A4F]' },
+            { label: 'Due this week', value: thiswkPts, color: thiswkPts > productionHours * (1 - reservePct / 100) ? 'bg-red-400' : 'bg-[#2D6A4F]' },
           ]}
         />
       </div>

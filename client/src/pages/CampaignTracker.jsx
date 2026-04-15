@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { fetchTasks, fetchAllTasks } from '../api/asana.js';
-import { groupByCampaign, groupBySection, getPoints, getCampaign } from '../utils/aggregate.js';
+import { groupByCampaign, groupBySection, getPoints, getCampaign, getTaskProgress } from '../utils/aggregate.js';
 import { SECTIONS_ORDER } from '../config.js';
 import StatCard from '../components/StatCard.jsx';
 import TaskTable from '../components/TaskTable.jsx';
@@ -31,7 +31,7 @@ export default function CampaignTracker() {
   const campaigns = groupByCampaign(tasks);
   const totalPoints = campaigns.reduce((s, c) => s + c.points, 0);
 
-  // Build completion stats per campaign using all tasks
+  // Build completion stats per campaign using all tasks (for "X of Y done" counts)
   const completionByCampaign = {};
   for (const task of allTasks) {
     const campaign = getCampaign(task) || 'Uncategorized';
@@ -104,7 +104,8 @@ export default function CampaignTracker() {
           const bySection = groupBySection(c.tasks);
           const pct = totalPoints > 0 ? (c.points / totalPoints * 100).toFixed(0) : 0;
           const completion = completionByCampaign[c.name] ?? { total: c.tasks.length, completed: 0 };
-          const completePct = completion.total > 0 ? Math.round((completion.completed / completion.total) * 100) : 0;
+          // Use section-weighted progress (Requests=0%, In Progress=45%, etc.) — same as previous tracker
+          const progressPct = c.progress;
           return (
             <button
               key={c.name}
@@ -120,16 +121,16 @@ export default function CampaignTracker() {
                 <span className="shrink-0 rounded bg-[#2D6A4F]/10 px-1.5 py-0.5 text-xs text-[#2D6A4F]">{pct}% of BW</span>
               </div>
 
-              {/* Progress bar */}
+              {/* Section-weighted progress bar */}
               <div className="mb-2">
                 <div className="flex justify-between text-xs text-gray-400 mb-1">
                   <span>Progress</span>
-                  <span className="font-semibold text-[#2D6A4F]">{completePct}%</span>
+                  <span className="font-semibold text-[#2D6A4F]">{progressPct}%</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-[#E8E0D4]">
                   <div
                     className="h-full rounded-full bg-[#2D6A4F] transition-all"
-                    style={{ width: `${completePct}%` }}
+                    style={{ width: `${progressPct}%` }}
                   />
                 </div>
                 <div className="mt-1 flex justify-between text-xs text-gray-400">

@@ -1,9 +1,25 @@
 {
-  "weeklyCapacity": {
-    "1209812771875462": 40,
-    "1210546465186795": 40,
-    "1210564384682197": 40,
-    "1206106258227118": 40
+  "people": {
+    "1209812771875462": {
+      "weeklyHours": 40,
+      "meetingHours": 7,
+      "adminHours": 5
+    },
+    "1210546465186795": {
+      "weeklyHours": 40,
+      "meetingHours": 8,
+      "adminHours": 10
+    },
+    "1210564384682197": {
+      "weeklyHours": 40,
+      "meetingHours": 8,
+      "adminHours": 8
+    },
+    "1206106258227118": {
+      "weeklyHours": 40,
+      "meetingHours": 0,
+      "adminHours": 0
+    }
   },
   "reservePercent": 20
 }
