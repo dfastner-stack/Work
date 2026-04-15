@@ -38,7 +38,7 @@ export default function TaskTable({ tasks, showAssignee = false, showCampaign = 
 
   const Th = ({ col, label }) => (
     <th
-      className="cursor-pointer select-none px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-white"
+      className="cursor-pointer select-none px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-700"
       onClick={() => toggleSort(col)}
     >
       {label} {sortKey === col ? (sortDir === 'asc' ? '↑' : '↓') : ''}
@@ -46,9 +46,9 @@ export default function TaskTable({ tasks, showAssignee = false, showCampaign = 
   );
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-800">
+    <div className="overflow-x-auto rounded-lg border border-[#E5E0D8]">
       <table className="w-full text-sm">
-        <thead className="bg-gray-900">
+        <thead className="bg-[#F5F0E8]">
           <tr>
             <Th col="name" label="Task" />
             {showAssignee && <Th col="assignee" label="Assignee" />}
@@ -58,11 +58,11 @@ export default function TaskTable({ tasks, showAssignee = false, showCampaign = 
             {showCampaign && <Th col="campaign" label="Campaign" />}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-800/50">
+        <tbody className="divide-y divide-[#F0EBE3]">
           {sorted.map(task => {
             const pts = getPoints(task);
             const overdue = isOverdue(task, today);
-            const rowCls = overdue ? 'bg-red-950/30' : 'bg-gray-900/40 hover:bg-gray-800/60';
+            const rowCls = overdue ? 'bg-red-50' : 'bg-white hover:bg-[#FAF7F2]';
             return (
               <tr key={task.gid} className={rowCls}>
                 <td className="max-w-xs px-3 py-2">
@@ -70,14 +70,14 @@ export default function TaskTable({ tasks, showAssignee = false, showCampaign = 
                     href={task.permalink_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="line-clamp-1 text-indigo-400 hover:text-indigo-300 hover:underline"
+                    className="line-clamp-1 text-[#2D6A4F] hover:text-[#1B4332] hover:underline"
                   >
                     {task.name || '(untitled)'}
                   </a>
                 </td>
                 {showAssignee && (
-                  <td className="px-3 py-2 text-gray-300 whitespace-nowrap">
-                    {task.assignee?.name ?? <span className="text-gray-600">Unassigned</span>}
+                  <td className="px-3 py-2 text-gray-600 whitespace-nowrap">
+                    {task.assignee?.name ?? <span className="text-gray-300">Unassigned</span>}
                   </td>
                 )}
                 <td className="px-3 py-2">
@@ -85,17 +85,17 @@ export default function TaskTable({ tasks, showAssignee = false, showCampaign = 
                 </td>
                 <td className="px-3 py-2 text-right font-mono">
                   {pts !== null ? (
-                    <span className="text-white">{pts}</span>
+                    <span className="text-gray-800">{pts}</span>
                   ) : (
-                    <span className="text-gray-600">—</span>
+                    <span className="text-gray-300">—</span>
                   )}
                 </td>
-                <td className={`px-3 py-2 whitespace-nowrap font-mono text-xs ${overdue ? 'text-red-400 font-semibold' : 'text-gray-400'}`}>
-                  {task.due_on ?? <span className="text-gray-700">No date</span>}
+                <td className={`px-3 py-2 whitespace-nowrap font-mono text-xs ${overdue ? 'text-red-600 font-semibold' : 'text-gray-400'}`}>
+                  {task.due_on ?? <span className="text-gray-300">No date</span>}
                   {overdue && ' ⚠'}
                 </td>
                 {showCampaign && (
-                  <td className="px-3 py-2 text-gray-400 text-xs">
+                  <td className="px-3 py-2 text-gray-500 text-xs">
                     {task.custom_fields?.find(f => f.gid === '1212986597975832')?.display_value ?? '—'}
                   </td>
                 )}
@@ -104,7 +104,7 @@ export default function TaskTable({ tasks, showAssignee = false, showCampaign = 
           })}
           {sorted.length === 0 && (
             <tr>
-              <td colSpan={5 + (showAssignee ? 1 : 0) + (showCampaign ? 1 : 0)} className="py-8 text-center text-gray-600">
+              <td colSpan={5 + (showAssignee ? 1 : 0) + (showCampaign ? 1 : 0)} className="py-8 text-center text-gray-300">
                 No tasks found
               </td>
             </tr>

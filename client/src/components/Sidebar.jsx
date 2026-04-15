@@ -14,10 +14,10 @@ const NAV = [
 
 export default function Sidebar({ onRefresh, refreshing }) {
   return (
-    <aside className="flex h-screen w-56 flex-col border-r border-gray-800 bg-gray-950 text-sm">
-      <div className="border-b border-gray-800 px-4 py-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-indigo-400">Content Dashboard</p>
-        <p className="mt-0.5 text-xs text-gray-600">Content Calendar</p>
+    <aside className="flex h-screen w-56 flex-col border-r border-[#1B4332]/20 bg-[#2D6A4F] text-sm">
+      <div className="border-b border-white/10 px-4 py-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#A8D5B5]">Content Dashboard</p>
+        <p className="mt-0.5 text-xs text-white/50">Content Calendar</p>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
@@ -28,7 +28,9 @@ export default function Sidebar({ onRefresh, refreshing }) {
             end={item.to === '/'}
             className={({ isActive }) =>
               `flex items-center gap-2 rounded-lg px-3 py-2 transition-colors ${
-                isActive ? 'bg-indigo-600/20 text-indigo-300' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100'
+                isActive
+                  ? 'bg-white/15 text-white font-medium'
+                  : 'text-white/70 hover:bg-white/10 hover:text-white'
               }`
             }
           >
@@ -37,19 +39,21 @@ export default function Sidebar({ onRefresh, refreshing }) {
           </NavLink>
         ))}
 
-        <div className="mt-3 border-t border-gray-800 pt-3">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">Individuals</p>
+        <div className="mt-3 border-t border-white/10 pt-3">
+          <p className="px-3 text-xs font-semibold uppercase tracking-wide text-white/40">Individuals</p>
           {PEOPLE.map(p => (
             <NavLink
               key={p.slug}
               to={`/person/${p.slug}`}
               className={({ isActive }) =>
                 `flex items-center gap-2 rounded-lg px-3 py-2 transition-colors ${
-                  isActive ? 'bg-indigo-600/20 text-indigo-300' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100'
+                  isActive
+                    ? 'bg-white/15 text-white font-medium'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white'
                 }`
               }
             >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-800 text-xs font-bold text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-xs font-bold text-white">
                 {p.name[0]}
               </span>
               <span>{p.name.split(' ')[0]}</span>
@@ -58,11 +62,11 @@ export default function Sidebar({ onRefresh, refreshing }) {
         </div>
       </nav>
 
-      <div className="border-t border-gray-800 p-3">
+      <div className="border-t border-white/10 p-3">
         <button
           onClick={onRefresh}
           disabled={refreshing}
-          className="w-full rounded-lg border border-gray-700 px-3 py-1.5 text-xs text-gray-400 hover:bg-gray-800 hover:text-gray-100 disabled:opacity-50"
+          className="w-full rounded-lg border border-white/20 px-3 py-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white disabled:opacity-50"
         >
           {refreshing ? 'Refreshing…' : '↺ Refresh Data'}
         </button>

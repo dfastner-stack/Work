@@ -6,11 +6,11 @@ import StatCard from '../components/StatCard.jsx';
 import TaskTable from '../components/TaskTable.jsx';
 
 const BUCKETS = [
-  { key: 'overdue',  label: '⚠ Overdue',     color: 'border-red-600/50 bg-red-950/20' },
-  { key: 'thisWeek', label: 'This Week',      color: 'border-yellow-600/40 bg-yellow-950/20' },
-  { key: 'nextWeek', label: 'Next Week',      color: 'border-indigo-600/40 bg-indigo-950/10' },
-  { key: 'later',    label: 'Later',          color: 'border-gray-700 bg-gray-900/30' },
-  { key: 'noDueDate',label: 'No Due Date',    color: 'border-gray-800 bg-gray-900/20' },
+  { key: 'overdue',   label: '⚠ Overdue',   color: 'border-red-200 bg-red-50' },
+  { key: 'thisWeek',  label: 'This Week',    color: 'border-amber-200 bg-amber-50' },
+  { key: 'nextWeek',  label: 'Next Week',    color: 'border-[#2D6A4F]/20 bg-[#2D6A4F]/5' },
+  { key: 'later',     label: 'Later',        color: 'border-[#E5E0D8] bg-white' },
+  { key: 'noDueDate', label: 'No Due Date',  color: 'border-[#E5E0D8] bg-[#FAF7F2]' },
 ];
 
 export default function SprintPlanner() {
@@ -28,8 +28,8 @@ export default function SprintPlanner() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Shell><p className="text-gray-500">Loading…</p></Shell>;
-  if (error)   return <Shell><p className="text-red-400">Error: {error}</p></Shell>;
+  if (loading) return <Shell><p className="text-gray-400">Loading…</p></Shell>;
+  if (error)   return <Shell><p className="text-red-600">Error: {error}</p></Shell>;
 
   const today = new Date();
   const filteredTasks = personFilter === 'all'
@@ -39,23 +39,24 @@ export default function SprintPlanner() {
   const buckets = getSprintBuckets(filteredTasks, today);
   const byPerson = groupByPerson(filteredTasks);
 
-  const overduePts = buckets.overdue.reduce((s, t) => s + (getPoints(t) ?? 0), 0);
+  const overduePts  = buckets.overdue.reduce((s, t) => s + (getPoints(t) ?? 0), 0);
   const thisWeekPts = buckets.thisWeek.reduce((s, t) => s + (getPoints(t) ?? 0), 0);
   const nextWeekPts = buckets.nextWeek.reduce((s, t) => s + (getPoints(t) ?? 0), 0);
 
   return (
     <Shell>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Sprint Planner</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Sprint Planner</h1>
         <p className="mt-1 text-sm text-gray-500">Tasks by due date — helps plan weekly commitments</p>
       </div>
 
-      {/* Person filter */}
       <div className="mb-6 flex flex-wrap gap-2">
         <button
           onClick={() => setPersonFilter('all')}
           className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors ${
-            personFilter === 'all' ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300' : 'border-gray-700 text-gray-400 hover:border-gray-500'
+            personFilter === 'all'
+              ? 'border-[#2D6A4F] bg-[#2D6A4F]/10 text-[#2D6A4F]'
+              : 'border-[#E5E0D8] text-gray-500 hover:border-[#2D6A4F]/40'
           }`}
         >
           All People
@@ -65,7 +66,9 @@ export default function SprintPlanner() {
             key={p.gid}
             onClick={() => setPersonFilter(p.gid)}
             className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors ${
-              personFilter === p.gid ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300' : 'border-gray-700 text-gray-400 hover:border-gray-500'
+              personFilter === p.gid
+                ? 'border-[#2D6A4F] bg-[#2D6A4F]/10 text-[#2D6A4F]'
+                : 'border-[#E5E0D8] text-gray-500 hover:border-[#2D6A4F]/40'
             }`}
           >
             {p.name.split(' ')[0]}
@@ -73,14 +76,12 @@ export default function SprintPlanner() {
         ))}
       </div>
 
-      {/* Stats */}
       <div className="mb-6 grid grid-cols-3 gap-4">
         <StatCard label="Overdue" value={`${overduePts.toFixed(0)} pts`} sub={`${buckets.overdue.length} tasks`} color={buckets.overdue.length > 0 ? 'red' : 'gray'} />
         <StatCard label="This Week" value={`${thisWeekPts.toFixed(0)} pts`} sub={`${buckets.thisWeek.length} tasks`} color="yellow" />
-        <StatCard label="Next Week" value={`${nextWeekPts.toFixed(0)} pts`} sub={`${buckets.nextWeek.length} tasks`} color="indigo" />
+        <StatCard label="Next Week" value={`${nextWeekPts.toFixed(0)} pts`} sub={`${buckets.nextWeek.length} tasks`} color="green" />
       </div>
 
-      {/* Per-person this-week summary */}
       {personFilter === 'all' && (
         <div className="mb-6">
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-400">This Week by Person</h2>
@@ -92,12 +93,12 @@ export default function SprintPlanner() {
                           myBuckets.overdue.reduce((s, t) => s + (getPoints(t) ?? 0), 0);
               const over = pts > cap;
               return (
-                <div key={p.gid} className="rounded-lg border border-gray-800 bg-gray-900 px-3 py-2">
-                  <p className="text-xs font-medium text-gray-300">{p.name.split(' ')[0]}</p>
-                  <p className={`mt-0.5 text-lg font-bold ${over ? 'text-red-400' : 'text-white'}`}>
-                    {pts.toFixed(0)} <span className="text-xs font-normal text-gray-500">/ {cap} pts</span>
+                <div key={p.gid} className="rounded-lg border border-[#E5E0D8] bg-white px-3 py-2">
+                  <p className="text-xs font-medium text-gray-600">{p.name.split(' ')[0]}</p>
+                  <p className={`mt-0.5 text-lg font-bold ${over ? 'text-red-600' : 'text-gray-900'}`}>
+                    {pts.toFixed(0)} <span className="text-xs font-normal text-gray-400">/ {cap} pts</span>
                   </p>
-                  <p className="text-xs text-gray-600">{myBuckets.overdue.length} overdue · {myBuckets.thisWeek.length} due</p>
+                  <p className="text-xs text-gray-400">{myBuckets.overdue.length} overdue · {myBuckets.thisWeek.length} due</p>
                 </div>
               );
             })}
@@ -105,7 +106,6 @@ export default function SprintPlanner() {
         </div>
       )}
 
-      {/* Bucket accordion */}
       <div className="space-y-3">
         {BUCKETS.map(({ key, label, color }) => {
           const items = buckets[key];
@@ -118,7 +118,7 @@ export default function SprintPlanner() {
                 className="flex w-full items-center justify-between"
                 onClick={() => setExpandedBucket(isOpen ? null : key)}
               >
-                <span className="font-semibold text-white">{label}</span>
+                <span className="font-semibold text-gray-800">{label}</span>
                 <span className="text-sm text-gray-400">{items.length} tasks · {pts.toFixed(0)} pts {isOpen ? '↑' : '↓'}</span>
               </button>
               {isOpen && <div className="mt-3"><TaskTable tasks={items} showAssignee /></div>}
@@ -131,5 +131,5 @@ export default function SprintPlanner() {
 }
 
 function Shell({ children }) {
-  return <div className="min-h-screen p-6">{children}</div>;
+  return <div className="min-h-screen p-6 bg-[#FAF7F2]">{children}</div>;
 }

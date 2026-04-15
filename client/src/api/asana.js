@@ -1,4 +1,5 @@
 let _tasks = null;
+let _allTasks = null;
 let _config = null;
 
 export async function fetchTasks(force = false) {
@@ -8,6 +9,15 @@ export async function fetchTasks(force = false) {
   const json = await res.json();
   _tasks = json.data;
   return _tasks;
+}
+
+export async function fetchAllTasks(force = false) {
+  if (_allTasks && !force) return _allTasks;
+  const res = await fetch('/api/tasks?completed=true');
+  if (!res.ok) throw new Error(`Failed to load tasks: ${res.status}`);
+  const json = await res.json();
+  _allTasks = json.data;
+  return _allTasks;
 }
 
 export async function fetchConfig(force = false) {
@@ -32,5 +42,6 @@ export async function updateConfig(patch) {
 export async function refreshTasks() {
   await fetch('/api/refresh', { method: 'POST' });
   _tasks = null;
+  _allTasks = null;
   return fetchTasks(true);
 }

@@ -1,8 +1,3 @@
-/**
- * CapacityBar — stacked bar showing usage vs capacity.
- * segments: [{ label, value, color }]  (values in points)
- * capacity: total capacity (denominator)
- */
 export default function CapacityBar({ segments = [], capacity = 40, showLabel = true }) {
   const total = segments.reduce((s, seg) => s + seg.value, 0);
   const over = total > capacity;
@@ -10,7 +5,7 @@ export default function CapacityBar({ segments = [], capacity = 40, showLabel = 
 
   return (
     <div className="w-full">
-      <div className="relative h-4 w-full overflow-hidden rounded-full bg-gray-800">
+      <div className="relative h-3 w-full overflow-hidden rounded-full bg-[#E8E0D4]">
         {segments.map((seg, i) => {
           const left = segments.slice(0, i).reduce((s, x) => s + x.value, 0);
           return (
@@ -24,8 +19,8 @@ export default function CapacityBar({ segments = [], capacity = 40, showLabel = 
         })}
       </div>
       {showLabel && (
-        <div className="mt-1 flex justify-between text-xs text-gray-500">
-          <span className={over ? 'text-red-400 font-semibold' : ''}>
+        <div className="mt-1 flex justify-between text-xs text-gray-400">
+          <span className={over ? 'text-red-600 font-semibold' : ''}>
             {total.toFixed(0)} / {capacity} pts{over ? ' ⚠ OVER' : ''}
           </span>
           <span>{((total / capacity) * 100).toFixed(0)}%</span>

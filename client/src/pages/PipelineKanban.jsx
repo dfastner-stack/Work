@@ -18,8 +18,8 @@ export default function PipelineKanban() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Shell><p className="text-gray-500">Loading…</p></Shell>;
-  if (error)   return <Shell><p className="text-red-400">Error: {error}</p></Shell>;
+  if (loading) return <Shell><p className="text-gray-400">Loading…</p></Shell>;
+  if (error)   return <Shell><p className="text-red-600">Error: {error}</p></Shell>;
 
   const bySection = groupBySection(tasks);
   const totalPts = tasks.reduce((s, t) => s + (getPoints(t) ?? 0), 0);
@@ -28,7 +28,7 @@ export default function PipelineKanban() {
   return (
     <Shell>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Content Pipeline</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Content Pipeline</h1>
         <p className="mt-1 text-sm text-gray-500">All {tasks.length} incomplete tasks across {SECTIONS_ORDER.length} workflow stages</p>
       </div>
 
@@ -36,9 +36,9 @@ export default function PipelineKanban() {
         {SECTIONS_ORDER.map(sectionName => {
           const sec = bySection[sectionName];
           if (!sec) return (
-            <div key={sectionName} className="rounded-xl border border-gray-800/50 bg-gray-900/30 p-4 opacity-40">
+            <div key={sectionName} className="rounded-xl border border-[#E5E0D8]/50 bg-white/50 p-4 opacity-40">
               <SectionBadge name={sectionName} />
-              <p className="mt-2 text-sm text-gray-700">Empty</p>
+              <p className="mt-2 text-sm text-gray-300">Empty</p>
             </div>
           );
 
@@ -47,29 +47,28 @@ export default function PipelineKanban() {
           const isExpanded = expanded === sectionName;
 
           return (
-            <div key={sectionName} className={`rounded-xl border p-4 ${isBottleneck ? 'border-orange-500/50 bg-orange-950/20' : 'border-gray-800 bg-gray-900'}`}>
+            <div key={sectionName} className={`rounded-xl border p-4 ${isBottleneck ? 'border-orange-300 bg-orange-50' : 'border-[#E5E0D8] bg-white'}`}>
               <div className="mb-2 flex items-start justify-between gap-2">
                 <SectionBadge name={sectionName} />
-                {isBottleneck && <span className="rounded bg-orange-900/40 px-1.5 py-0.5 text-xs text-orange-400">🔥 Bottleneck</span>}
+                {isBottleneck && <span className="rounded bg-orange-100 px-1.5 py-0.5 text-xs text-orange-700">🔥 Bottleneck</span>}
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-white">{sec.tasks.length}</span>
-                <span className="text-sm text-gray-500">tasks</span>
-                <span className="ml-auto font-mono text-sm text-gray-300">{sec.points.toFixed(0)} pts</span>
-                <span className="text-xs text-gray-600">({pctOfTotal.toFixed(0)}%)</span>
+                <span className="text-2xl font-bold text-gray-900">{sec.tasks.length}</span>
+                <span className="text-sm text-gray-400">tasks</span>
+                <span className="ml-auto font-mono text-sm text-gray-700">{sec.points.toFixed(0)} pts</span>
+                <span className="text-xs text-gray-400">({pctOfTotal.toFixed(0)}%)</span>
               </div>
 
-              {/* Mini bar */}
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-800">
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#E8E0D4]">
                 <div
-                  className="h-full rounded-full bg-indigo-500"
+                  className="h-full rounded-full bg-[#2D6A4F]"
                   style={{ width: `${(sec.points / maxPts) * 100}%` }}
                 />
               </div>
 
               <button
                 onClick={() => setExpanded(isExpanded ? null : sectionName)}
-                className="mt-3 text-xs text-indigo-400 hover:text-indigo-300"
+                className="mt-3 text-xs text-[#2D6A4F] hover:text-[#1B4332]"
               >
                 {isExpanded ? 'Hide tasks ↑' : 'Show tasks ↓'}
               </button>
@@ -88,5 +87,5 @@ export default function PipelineKanban() {
 }
 
 function Shell({ children }) {
-  return <div className="min-h-screen p-6">{children}</div>;
+  return <div className="min-h-screen p-6 bg-[#FAF7F2]">{children}</div>;
 }

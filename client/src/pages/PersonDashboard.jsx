@@ -6,7 +6,6 @@ import { PERSON_BY_SLUG, SECTIONS_ORDER, weeksRemaining } from '../config.js';
 import CapacityBar from '../components/CapacityBar.jsx';
 import StatCard from '../components/StatCard.jsx';
 import TaskTable from '../components/TaskTable.jsx';
-import SectionBadge from '../components/SectionBadge.jsx';
 
 export default function PersonDashboard() {
   const { slug } = useParams();
@@ -25,8 +24,8 @@ export default function PersonDashboard() {
   }, []);
 
   if (!person) return <Navigate to="/" replace />;
-  if (loading) return <Shell person={person}><p className="text-gray-500">Loading…</p></Shell>;
-  if (error)   return <Shell person={person}><p className="text-red-400">Error: {error}</p></Shell>;
+  if (loading) return <Shell person={person}><p className="text-gray-400">Loading…</p></Shell>;
+  if (error)   return <Shell person={person}><p className="text-red-600">Error: {error}</p></Shell>;
 
   const today = new Date();
   const wksLeft = weeksRemaining(today);
@@ -49,27 +48,27 @@ export default function PersonDashboard() {
   return (
     <Shell person={person}>
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="Total Backlog" value={`${totalPoints.toFixed(0)} pts`} color="indigo" />
+        <StatCard label="Total Backlog" value={`${totalPoints.toFixed(0)} pts`} color="green" />
         <StatCard label="This Week Due" value={`${thiswkPts.toFixed(0)} pts`} sub="next 7 days" color={thiswkPts > weeklyCapacity ? 'red' : 'green'} />
         <StatCard label="Wks to Clear" value={wksToClear.toFixed(1)} sub={`of ${wksLeft.toFixed(1)} remaining`} color={wksToClear > wksLeft ? 'red' : 'green'} />
         <StatCard label="Missing Pts" value={missingPoints} sub="no estimate" color={missingPoints > 0 ? 'yellow' : 'gray'} />
       </div>
 
-      <div className="mb-6 rounded-xl border border-gray-800 bg-gray-900 p-4">
+      <div className="mb-6 rounded-xl border border-[#E5E0D8] bg-white p-4">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-sm font-semibold text-gray-300">Weekly Capacity</p>
-          <p className="text-xs text-gray-500">{weeklyCapacity} pts/wk · 20% reserved</p>
+          <p className="text-sm font-semibold text-gray-700">Weekly Capacity</p>
+          <p className="text-xs text-gray-400">{weeklyCapacity} pts/wk · 20% reserved</p>
         </div>
         <CapacityBar
           capacity={weeklyCapacity}
           segments={[
-            { label: 'Due this week', value: thiswkPts, color: thiswkPts > weeklyCapacity * 0.8 ? 'bg-red-500' : 'bg-indigo-500' },
+            { label: 'Due this week', value: thiswkPts, color: thiswkPts > weeklyCapacity * 0.8 ? 'bg-red-400' : 'bg-[#2D6A4F]' },
           ]}
         />
       </div>
 
       {overdueTasks.length > 0 && (
-        <div className="mb-4 rounded-lg border border-red-600/40 bg-red-950/30 px-4 py-2 text-sm text-red-300">
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
           ⚠ {overdueTasks.length} overdue task{overdueTasks.length !== 1 ? 's' : ''} —{' '}
           {overdueTasks.reduce((s, t) => s + (getPoints(t) ?? 0), 0).toFixed(0)} pts locked
         </div>
@@ -83,8 +82,8 @@ export default function PersonDashboard() {
             onClick={() => setSectionFilter(sec)}
             className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors ${
               sectionFilter === sec
-                ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300'
-                : 'border-gray-700 text-gray-400 hover:border-gray-500'
+                ? 'border-[#2D6A4F] bg-[#2D6A4F]/10 text-[#2D6A4F]'
+                : 'border-[#E5E0D8] text-gray-500 hover:border-[#2D6A4F]/40'
             }`}
           >
             {sec} {sec !== 'All' && bySection[sec] ? `(${bySection[sec].tasks.length})` : ''}
@@ -102,14 +101,14 @@ export default function PersonDashboard() {
 
 function Shell({ person, children }) {
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 bg-[#FAF7F2]">
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-700 text-xl font-bold text-white">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#2D6A4F] text-xl font-bold text-white">
           {person.name[0]}
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">{person.name}</h1>
-          <p className="text-sm text-gray-500">{person.email}</p>
+          <h1 className="text-2xl font-bold text-gray-900">{person.name}</h1>
+          <p className="text-sm text-gray-400">{person.email}</p>
         </div>
       </div>
       {children}
