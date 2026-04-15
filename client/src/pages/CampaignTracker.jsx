@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { fetchTasks, fetchAllTasks } from '../api/asana.js';
-import { groupByCampaign, groupBySection, getPoints, getCampaign, getTaskProgress } from '../utils/aggregate.js';
-import { SECTIONS_ORDER } from '../config.js';
+import { groupByCampaign, groupBySection, getPoints, getCampaign, getTaskProgress, getSection } from '../utils/aggregate.js';
+import { SECTIONS_ORDER, getCurrentQuarter } from '../config.js';
 import StatCard from '../components/StatCard.jsx';
 import TaskTable from '../components/TaskTable.jsx';
 
@@ -28,12 +28,28 @@ export default function CampaignTracker() {
   if (loading) return <Shell><p className="text-gray-400">Loading…</p></Shell>;
   if (error)   return <Shell><p className="text-red-600">Error: {error}</p></Shell>;
 
-  const campaigns = groupByCampaign(tasks);
+  const today = new Date();
+  const q = getCurrentQuarter(today);
+
+  // Exclude next-quarter recurring baseline and stalled/blocked tasks
+  const EXCLUDED_SECTIONS = new Set(['On Hold', 'Reoccurring']);
+
+  // Active this-quarter tasks: not in excluded sections, not scheduled past quarter end
+  const quarterTasks = tasks.filter(t => {
+    if (EXCLUDED_SECTIONS.has(getSection(t))) return false;
+    if (t.due_on && new Date(t.due_on) > q.end) return false;
+    return true;
+  });
+
+  // All tasks (including completed) scoped to same section filter for completion counts
+  const quarterAllTasks = allTasks.filter(t => !EXCLUDED_SECTIONS.has(getSection(t)));
+
+  const campaigns = groupByCampaign(quarterTasks);
   const totalPoints = campaigns.reduce((s, c) => s + c.points, 0);
 
-  // Build completion stats per campaign using all tasks (for "X of Y done" counts)
+  // Build completion stats per campaign (for "X of Y done" counts)
   const completionByCampaign = {};
-  for (const task of allTasks) {
+  for (const task of quarterAllTasks) {
     const campaign = getCampaign(task) || 'Uncategorized';
     if (!completionByCampaign[campaign]) completionByCampaign[campaign] = { total: 0, completed: 0 };
     completionByCampaign[campaign].total += 1;
@@ -52,7 +68,9 @@ export default function CampaignTracker() {
     <Shell>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Campaign Tracker</h1>
-        <p className="mt-1 text-sm text-gray-500">Grouped by "Campaign or Project Name" custom field</p>
+        <p className="mt-1 text-sm text-gray-500">
+          {q.label} active campaigns · excludes On Hold &amp; Reoccurring (next quarter)
+        </p>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
