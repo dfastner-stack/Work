@@ -1,17 +1,33 @@
 import { CUSTOM_FIELDS, PEOPLE, weeksRemaining, weeksInQuarter } from '../config.js';
 
-// ─── Section progress weights (matches your previous tracker) ────────────────
+// ─── Section progress weights ─────────────────────────────────────────────────
 export const SECTION_PROGRESS = {
   'Requests':          0,
   'On Hold':           0,
-  'To Do Queue':       5,
-  'In Progress':      45,
+  'To Do Queue':      10,
+  'In Progress':      40,
+  'CD Review':        65,
   'Awaiting Approval':75,
-  'Approved':         90,
+  'Approved':         85,
   'Scheduled':        95,
   'Reoccurring':      95,
   'Finito':          100,
 };
+
+// ─── Utilization rate helpers ─────────────────────────────────────────────────
+
+export function calcUtilizationRate(backlogPts, netCapacityPts) {
+  if (netCapacityPts <= 0) return backlogPts > 0 ? 999 : 0;
+  return Math.round((backlogPts / netCapacityPts) * 100);
+}
+
+export function utilizationStyle(rate) {
+  if (rate < 65)   return { text: 'text-blue-600',     bg: 'bg-blue-50',       border: 'border-blue-200',     label: 'Under-utilized' };
+  if (rate <= 85)  return { text: 'text-[#2D6A4F]',    bg: 'bg-[#2D6A4F]/5',  border: 'border-[#2D6A4F]/20', label: 'Healthy' };
+  if (rate <= 90)  return { text: 'text-amber-600',    bg: 'bg-amber-50',      border: 'border-amber-200',    label: 'Watch Zone' };
+  if (rate <= 100) return { text: 'text-red-600',      bg: 'bg-red-50',        border: 'border-red-200',      label: 'At Risk' };
+  return             { text: 'text-red-700 font-bold', bg: 'bg-red-50',        border: 'border-red-300',      label: 'Over-allocated' };
+}
 
 // ─── Task field helpers ───────────────────────────────────────────────────────
 

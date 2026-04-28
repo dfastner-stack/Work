@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchTasks, fetchConfig } from '../api/asana.js';
-import { groupByPerson, getSprintBuckets, getPoints } from '../utils/aggregate.js';
+import { groupByPerson, getSprintBuckets, getPoints, getPersonCapacity, calcUtilizationRate, utilizationStyle } from '../utils/aggregate.js';
 import { PEOPLE } from '../config.js';
 import StatCard from '../components/StatCard.jsx';
 import TaskTable from '../components/TaskTable.jsx';
@@ -85,20 +85,25 @@ export default function SprintPlanner() {
       {personFilter === 'all' && (
         <div className="mb-6">
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-400">This Week by Person</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-3">
             {PEOPLE.map(p => {
-              const cap = config?.weeklyCapacity?.[p.gid] ?? 40;
+              const cap = getPersonCapacity(p.gid, config);
+              const prodHrs = cap.productionHours;
               const myBuckets = getSprintBuckets(byPerson[p.gid]?.tasks ?? [], today);
               const pts = myBuckets.thisWeek.reduce((s, t) => s + (getPoints(t) ?? 0), 0) +
                           myBuckets.overdue.reduce((s, t) => s + (getPoints(t) ?? 0), 0);
-              const over = pts > cap;
+              const util = calcUtilizationRate(pts, prodHrs);
+              const style = utilizationStyle(util);
               return (
-                <div key={p.gid} className="rounded-lg border border-[#E5E0D8] bg-white px-3 py-2">
-                  <p className="text-xs font-medium text-gray-600">{p.name.split(' ')[0]}</p>
-                  <p className={`mt-0.5 text-lg font-bold ${over ? 'text-red-600' : 'text-gray-900'}`}>
-                    {pts.toFixed(0)} <span className="text-xs font-normal text-gray-400">/ {cap} pts</span>
+                <div key={p.gid} className={`rounded-lg border px-3 py-2 ${style.border} ${style.bg}`}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-gray-600">{p.name.split(' ')[0]}</p>
+                    <span className={`text-sm font-bold ${style.text}`}>{util}% <span className="text-xs font-normal">{style.label}</span></span>
+                  </div>
+                  <p className={`mt-0.5 text-lg font-bold text-gray-900`}>
+                    {pts.toFixed(0)} <span className="text-xs font-normal text-gray-400">/ {prodHrs} pts this week</span>
                   </p>
-                  <p className="text-xs text-gray-400">{myBuckets.overdue.length} overdue · {myBuckets.thisWeek.length} due</p>
+                  <p className="text-xs text-gray-400">{myBuckets.overdue.length} overdue · {myBuckets.thisWeek.length} due this week</p>
                 </div>
               );
             })}

@@ -13,11 +13,12 @@ app.use(express.json());
 const ASANA_BASE = 'https://app.asana.com/api/1.0';
 const PROJECT_GID = '1207270670742448';
 const TASK_FIELDS = [
-  'gid', 'name', 'completed', 'due_on', 'permalink_url',
+  'gid', 'name', 'completed', 'due_on', 'modified_at', 'permalink_url',
   'assignee', 'assignee.name', 'assignee.email', 'assignee.gid',
   'memberships.section.name', 'memberships.section.gid',
   'custom_fields', 'custom_fields.gid', 'custom_fields.name',
   'custom_fields.number_value', 'custom_fields.display_value',
+  'custom_fields.text_value',
   'custom_fields.enum_value', 'custom_fields.enum_value.name',
   'custom_fields.people_value', 'custom_fields.people_value.name',
   'custom_fields.people_value.gid',
@@ -119,6 +120,36 @@ app.patch('/api/config', (req, res) => {
 app.post('/api/refresh', (req, res) => {
   cache = { tasks: null, timestamp: 0 };
   res.json({ ok: true });
+});
+
+// ─── Utilization history ──────────────────────────────────────────────────────
+
+function historyPath() { return join(__dirname, 'utilization-history.json'); }
+
+function readHistory() {
+  try { return JSON.parse(readFileSync(historyPath(), 'utf8')); }
+  catch { return { entries: [] }; }
+}
+
+// GET /api/utilization-history
+app.get('/api/utilization-history', (req, res) => {
+  res.json(readHistory());
+});
+
+// POST /api/utilization-history/record  — upserts by weekOf
+app.post('/api/utilization-history/record', (req, res) => {
+  try {
+    const { weekOf, team } = req.body;
+    if (!weekOf || !team) return res.status(400).json({ error: 'weekOf and team required' });
+    const data = readHistory();
+    const idx = data.entries.findIndex(e => e.weekOf === weekOf);
+    if (idx >= 0) data.entries[idx] = { weekOf, team };
+    else data.entries.push({ weekOf, team });
+    writeFileSync(historyPath(), JSON.stringify(data, null, 2));
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3001;

@@ -3,6 +3,7 @@ const COLORS = {
   'On Hold':           'bg-gray-100 text-gray-600',
   'To Do Queue':       'bg-purple-100 text-purple-700',
   'In Progress':       'bg-amber-100 text-amber-700',
+  'CD Review':         'bg-yellow-100 text-yellow-800',
   'Awaiting Approval': 'bg-orange-100 text-orange-700',
   'Approved':          'bg-teal-100 text-teal-700',
   'Scheduled':         'bg-cyan-100 text-cyan-700',

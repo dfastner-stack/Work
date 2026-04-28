@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { fetchTasks, fetchConfig } from '../api/asana.js';
-import { groupByPerson, groupBySection, getPoints, isOverdue, isDueSoon, getPersonCapacity } from '../utils/aggregate.js';
+import { groupByPerson, groupBySection, getPoints, isOverdue, isDueSoon, getPersonCapacity, calcUtilizationRate, utilizationStyle } from '../utils/aggregate.js';
 import { PERSON_BY_SLUG, SECTIONS_ORDER, weeksRemaining } from '../config.js';
 import CapacityBar from '../components/CapacityBar.jsx';
 import StatCard from '../components/StatCard.jsx';
@@ -38,6 +38,10 @@ export default function PersonDashboard() {
   const totalPoints = byPerson[person.gid]?.totalPoints ?? 0;
   const missingPoints = byPerson[person.gid]?.missingPoints ?? 0;
 
+  const netQtrCap = productionHours * wksLeft * (1 - reservePct / 100);
+  const utilRate = calcUtilizationRate(totalPoints, netQtrCap);
+  const utilSt = utilizationStyle(utilRate);
+
   const thiswkPts = myTasks.filter(t => isDueSoon(t, 7, today)).reduce((s, t) => s + (getPoints(t) ?? 0), 0);
   const overdueTasks = myTasks.filter(t => isOverdue(t, today));
   const wksToClear = productionHours > 0 ? totalPoints / (productionHours * (1 - reservePct / 100)) : 0;
@@ -49,6 +53,18 @@ export default function PersonDashboard() {
 
   return (
     <Shell person={person}>
+      {/* Utilization rate headline */}
+      <div className={`mb-6 rounded-xl border p-4 flex items-center justify-between ${utilSt.border} ${utilSt.bg}`}>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Quarter Utilization Rate</p>
+          <p className="mt-0.5 text-xs text-gray-400">Backlog vs net plannable capacity for {wksLeft.toFixed(1)} weeks remaining</p>
+        </div>
+        <div className="text-right">
+          <p className={`text-4xl font-bold ${utilSt.text}`}>{utilRate > 999 ? '∞' : `${utilRate}%`}</p>
+          <p className={`text-sm font-medium ${utilSt.text}`}>{utilSt.label}</p>
+        </div>
+      </div>
+
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard label="Total Backlog" value={`${totalPoints.toFixed(0)} pts`} color="green" />
         <StatCard label="This Week Due" value={`${thiswkPts.toFixed(0)} pts`} sub="next 7 days" color={thiswkPts > productionHours ? 'red' : 'green'} />

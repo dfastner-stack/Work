@@ -45,3 +45,19 @@ export async function refreshTasks() {
   _allTasks = null;
   return fetchTasks(true);
 }
+
+export async function fetchUtilizationHistory() {
+  const res = await fetch('/api/utilization-history');
+  if (!res.ok) throw new Error('Failed to load utilization history');
+  return res.json();
+}
+
+export async function recordUtilizationHistory(weekOf, team) {
+  const res = await fetch('/api/utilization-history/record', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ weekOf, team }),
+  });
+  if (!res.ok) throw new Error('Failed to record utilization history');
+  return res.json();
+}

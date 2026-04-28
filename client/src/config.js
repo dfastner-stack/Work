@@ -2,7 +2,6 @@
 export const PROJECT_GID = '1207270670742448';
 
 export const PEOPLE = [
-  { gid: '1209812771875462', name: 'Rupert Allan',   slug: 'rupert',  email: 'rallan@investwithroots.com' },
   { gid: '1210546465186795', name: 'Dan Fastner',    slug: 'dan',     email: 'dfastner@investwithroots.com' },
   { gid: '1210564384682197', name: 'Abigail Mangum', slug: 'abigail', email: 'amangum@investwithroots.com' },
   { gid: '1206106258227118', name: 'Tech Thai',      slug: 'tech',    email: 'tthai@investwithroots.com' },
@@ -21,7 +20,7 @@ export const CUSTOM_FIELDS = {
 };
 
 export const SECTIONS_ORDER = [
-  'Requests', 'On Hold', 'To Do Queue', 'In Progress',
+  'Requests', 'On Hold', 'To Do Queue', 'In Progress', 'CD Review',
   'Awaiting Approval', 'Approved', 'Scheduled', 'Reoccurring', 'Finito',
 ];
 

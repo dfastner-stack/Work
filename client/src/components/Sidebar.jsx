@@ -3,16 +3,17 @@ import { PEOPLE } from '../config.js';
 
 const NAV = [
   { to: '/', label: 'Team Overview', icon: '🏠' },
+  { to: '/master-job-list', label: 'Master Job List', icon: '📋' },
   { to: '/bandwidth', label: 'Bandwidth Calculator', icon: '⚡' },
   { to: '/quarter', label: 'Quarter Planning', icon: '📅' },
   { to: '/campaigns', label: 'Campaign Tracker', icon: '🎯' },
   { to: '/pipeline', label: 'Content Pipeline', icon: '🔄' },
   { to: '/sprint', label: 'Sprint Planner', icon: '🏃' },
   { to: '/content-types', label: 'Content Types', icon: '🎨' },
-  { to: '/overdue', label: 'Overdue & Stalled', icon: '🚨' },
+  { to: '/overdue', label: 'Overdue & Stalled', icon: '🚨', badgeKey: 'overdue' },
 ];
 
-export default function Sidebar({ onRefresh, refreshing }) {
+export default function Sidebar({ onRefresh, refreshing, overdueCount = 0 }) {
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-[#1B4332]/20 bg-[#2D6A4F] text-sm">
       <div className="border-b border-white/10 px-4 py-4">
@@ -35,7 +36,12 @@ export default function Sidebar({ onRefresh, refreshing }) {
             }
           >
             <span>{item.icon}</span>
-            <span>{item.label}</span>
+            <span className="flex-1">{item.label}</span>
+            {item.badgeKey === 'overdue' && overdueCount > 0 && (
+              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
+                {overdueCount}
+              </span>
+            )}
           </NavLink>
         ))}
 
