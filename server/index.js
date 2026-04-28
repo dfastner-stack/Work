@@ -1,5 +1,5 @@
 import express from 'express';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { config as dotenvConfig } from 'dotenv';
@@ -151,6 +151,13 @@ app.post('/api/utilization-history/record', (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Serve React build in production
+const distPath = join(__dirname, '..', 'client', 'dist');
+if (existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('*', (req, res) => res.sendFile(join(distPath, 'index.html')));
+}
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
